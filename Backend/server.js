@@ -1,26 +1,43 @@
-
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv'); // Import dotenv module
-
-require("dotenv").config()
+// server.js
+import express from 'express';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import Blog from './BlogSchema.js';
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
-const URI= process.env.DB_URI;
+// Middleware
+app.use(bodyParser.json());
 
-mongoose.connect(URI)
-.then(()=>{console.log("Successfully connected with the MongoDb")})
-.catch((error)=>{console.log("Something went wrong. Failed to connected with MongoDb ",error.message)});
+// MongoDB connection
+const dbUrl = process.env.DB_URI; // Set this to your MongoDB connection string
+mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 
-app.get('/', (req, res) => {
-    res.send('Hello from the backend!');
+// Routes
+app.get('/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find();
+    res.json(blogs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+app.post('/blogs', async (req, res) => {
+  const blogData = req.body;
+  try {
+    const newBlog = new Blog(blogData);
+    const savedBlog = await newBlog.save();
+    res.status(201).json(savedBlog);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
+// Add other CRUD routes as needed
 
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
