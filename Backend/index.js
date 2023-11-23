@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'; // Import dotenv for environment variables
-import Task from './model/BlogSchema.js';
+import Task from './models/BlogSchema.js';
 
 dotenv.config();
 const app = express();
