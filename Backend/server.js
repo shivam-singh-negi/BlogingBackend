@@ -1,13 +1,15 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv'; // Import dotenv for environment variables
 import Task from './BlogSchema.js';
 
+dotenv.config();
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT
 app.use(express.json());
 
 // MongoDB connection
-const dbUrl = "mongodb+srv://shivam:hCoF8w0RSgIw5fbj@cluster0.wfjck6q.mongodb.net/newBlog?retryWrites=true&w=majority";
+const dbUrl = process.env.URL
 
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
