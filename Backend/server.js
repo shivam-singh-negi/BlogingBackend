@@ -1,43 +1,81 @@
-// server.js
 import express from 'express';
 import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
-import Blog from './BlogSchema.js';
+import Task from './BlogSchema.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(bodyParser.json());
+const PORT = 3000;
+app.use(express.json());
 
 // MongoDB connection
-const dbUrl = process.env.DB_URI; // Set this to your MongoDB connection string
-mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+const dbUrl = "mongodb+srv://shivam:hCoF8w0RSgIw5fbj@cluster0.wfjck6q.mongodb.net/newBlog?retryWrites=true&w=majority";
 
-// Routes
-app.get('/blogs', async (req, res) => {
-  try {
-    const blogs = await Blog.find();
-    res.json(blogs);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+mongoose.connect(dbUrl, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => {
+    console.log('Connected to MongoDB');
 
-app.post('/blogs', async (req, res) => {
-  const blogData = req.body;
-  try {
-    const newBlog = new Blog(blogData);
-    const savedBlog = await newBlog.save();
-    res.status(201).json(savedBlog);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+    // Render HTML on connection success
+    app.get('/', (req, res) => {
+      res.send('<h1>Server is running and connected to MongoDB!</h1>');
+    });
 
-// Add other CRUD routes as needed
+    // Get all tasks
+    app.get('/api/tasks', async (req, res) => {
+      try {
+        const tasks = await Task.find();
+        res.status(200).json(tasks);
+      } catch (error) {
+        console.error('Error fetching tasks:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+    // Create a new task
+    app.post('/api/tasks', async (req, res) => {
+      try {
+        const text = new Task(req.body);
+         console.log(text)
+        const response = await text.save();
+        res.status(201).json(response);
+      } catch (error) {
+        console.error('Error creating task:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
+
+    // Update a task
+    app.put('/api/tasks/:id', async (req, res) => {
+      const taskId = req.params.id;
+      const taskData = req.body;
+      try {
+        const updatedTask = await Task.findByIdAndUpdate(taskId, taskData, { new: true });
+        res.status(200).json(updatedTask);
+      } catch (error) {
+        console.error('Error updating task:', error.message);
+        res.status(400).json({ error: 'Bad Request' });
+      }
+    });
+
+    // Delete a task
+    app.delete('/api/tasks/:id', async (req, res) => {
+      const taskId = req.params.id;
+      try {
+        const deletedTask = await Task.findByIdAndRemove(taskId);
+        res.status(200).json(deletedTask);
+      } catch (error) {
+        console.error('Error deleting task:', error.message);
+        res.status(400).json({ error: 'Bad Request' });
+      }
+    });
+
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error.message);
+    process.exit(1); // Exit the process if there's an error connecting to MongoDB
+  });
