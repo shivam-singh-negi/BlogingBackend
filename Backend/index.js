@@ -91,11 +91,13 @@ mongoose.connect(dbUrl, {
     app.delete('/api/tasks/:id', async (req, res) => {
       const taskId = req.params.id;
       try {
-        const deletedTask = await Task.findByIdAndRemove(taskId);
+        const deletedTask = await Task.findByIdAndDelete(taskId);
+
+        console.log(deletedTask)
         res.status(200).json(deletedTask);
       } catch (error) {
         console.error('Error deleting task:', error.message);
-        res.status(400).json({ error: 'Bad Request' });
+        res.status(400).json({ error: error.message });
       }
     });
 
