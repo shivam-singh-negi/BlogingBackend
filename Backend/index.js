@@ -34,6 +34,29 @@ mongoose.connect(dbUrl, {
       }
     });
 
+    app.get('/api/tasks/:id', async (req, res) => {
+      const taskId = req.params.id;
+      console.log('Task ID:', taskId); // Log the taskId
+    
+    
+      try {
+        // Find the task by ID in the database
+        const task = await Task.findById(taskId);
+        console.log(task)
+    
+        // Check if the task was found
+        if (!task) {
+          return res.status(404).json({ error: 'Task not found' });
+        }
+    
+        // If found, return the task
+        res.status(200).json(task);
+      } catch (error) {
+        console.error('Error fetching task by ID:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
+
     // Create a new task
     app.post('/api/tasks', async (req, res) => {
       try {
