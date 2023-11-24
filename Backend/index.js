@@ -2,9 +2,13 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'; // Import dotenv for environment variables
 import Task from './models/BlogSchema.js';
+import cors from 'cors'; // Import the cors middleware
 
 dotenv.config();
+
 const app = express();
+app.use(cors());
+
 const PORT = process.env.PORT
 app.use(express.json());
 
