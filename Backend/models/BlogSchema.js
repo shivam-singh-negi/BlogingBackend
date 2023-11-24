@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 
 const contentSectionSchema = new mongoose.Schema({
+  id:Number,
     type: { type: String },
     content: String
   });
   
   const sectionSchema = new mongoose.Schema({
+    id:Number,
     subheading: String,
     contentSections: [contentSectionSchema]
   });
