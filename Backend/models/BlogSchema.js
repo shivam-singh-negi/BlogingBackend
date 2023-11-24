@@ -12,6 +12,7 @@ const contentSectionSchema = new mongoose.Schema({
   
   const blogSchema = new mongoose.Schema({
     title: String,
+    description:String,
     sections: [sectionSchema],
     createdAt: { type: Date, default: Date.now }
   });
